@@ -13,18 +13,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import static java.lang.System.getProperties;
 
 public class Util {
 
     //Настройка соединения через JDBC
     public static Connection connect() {
-        Properties properties = new Properties();
-        try {
-            properties.load(Util.class.getClassLoader().getResourceAsStream("application.properties"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Properties properties = getProperties();
         loadDriverClass();
 
         try {
@@ -34,6 +28,16 @@ public class Util {
         } catch (SQLException e) {
             throw new RuntimeException("Проверьте настройки, Вы не смогли подключиться к БД");
         }
+    }
+
+    private static Properties getProperties() {
+        Properties properties = new Properties();
+        try {
+            properties.load(Util.class.getClassLoader().getResourceAsStream("application.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return properties;
     }
 
     private static void loadDriverClass() {
@@ -48,11 +52,7 @@ public class Util {
     public static SessionFactory setUp() {
         Properties properties = getProperties();
 
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
 
         StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
                 .applySetting("hibernate.connection.url", properties.getProperty("host"))
@@ -60,7 +60,7 @@ public class Util {
                 .applySetting("hibernate.connection.password", properties.getProperty("password"))
                 .applySetting("hibernate.show_sql", properties.getProperty("hibernate.show_sql"))
                 .applySetting("hibernate.format_sql", properties.getProperty("hibernate.format_sql"))
-                .applySetting("hibernate.use_sql_comments", properties.getProperty("hibernate.use_sql_comments"))
+                .applySetting("hibernate.hbm2ddl.auto", properties.getProperty("hibernate.hbm2ddl.auto"))
                 .build();
         try {
             Metadata metadata = new MetadataSources(registry)

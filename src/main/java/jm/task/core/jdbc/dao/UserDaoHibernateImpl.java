@@ -22,7 +22,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Transaction transaction = null;
+        Transaction transaction;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             session.createNativeQuery("CREATE TABLE IF NOT EXISTS users(" +
